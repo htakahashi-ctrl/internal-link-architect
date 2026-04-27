@@ -1,769 +1,354 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Internal Link Architect</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #f7f6f3;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --text: #1a1916;
-    --text2: #6b6960;
-    --text3: #9e9d97;
-    --accent: #1a1916;
-    --accent-fg: #f7f6f3;
-    --green-bg: #e8f4e8;
-    --green-text: #2d6a2d;
-    --amber-bg: #fdf0d5;
-    --amber-text: #7a4e0d;
-    --blue-bg: #e8f0fb;
-    --blue-text: #1a4a8a;
-    --red-bg: #fce8e8;
-    --red-text: #8a1a1a;
-    --radius: 10px;
-    --radius-sm: 6px;
-  }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding: 2.5rem 1rem 4rem;
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  .container {
-    max-width: 760px;
-    margin: 0 auto;
-  }
-
-  /* Header */
-  .header {
-    margin-bottom: 2.5rem;
-  }
-  .header-top {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-  .header h1 {
-    font-size: 26px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-  }
-  .version-badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    background: var(--green-bg);
-    color: var(--green-text);
-    border-radius: 999px;
-    font-weight: 500;
-  }
-  .header p {
-    font-size: 14px;
-    color: var(--text2);
-  }
-
-  /* API Key section */
-  .api-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .api-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--text3);
-    flex-shrink: 0;
-    transition: background 0.2s;
-  }
-  .api-dot.ok { background: #4caf50; }
-  .api-label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text2);
-    flex-shrink: 0;
-    min-width: 120px;
-  }
-  .api-input {
-    flex: 1;
-    height: 34px;
-    padding: 0 10px;
-    font-size: 13px;
-    font-family: 'DM Mono', monospace;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--surface2);
-    color: var(--text);
-    outline: none;
-  }
-  .api-input:focus { border-color: var(--accent); }
-  .api-hint {
-    font-size: 11px;
-    color: var(--text3);
-    flex-shrink: 0;
-  }
-
-  /* Card */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .section-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text2);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  input[type="url"], input[type="number"], input[type="text"] {
-    width: 100%;
-    height: 38px;
-    padding: 0 12px;
-    font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  input:focus { border-color: var(--accent); background: var(--surface); }
-
-  textarea {
-    width: 100%;
-    padding: 10px 12px;
-    font-size: 13px;
-    font-family: 'DM Mono', monospace;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--bg);
-    color: var(--text);
-    outline: none;
-    resize: vertical;
-    line-height: 1.55;
-    transition: border-color 0.15s;
-  }
-  textarea:focus { border-color: var(--accent); background: var(--surface); }
-
-  .hint { font-size: 12px; color: var(--text3); margin-top: 5px; }
-
-  /* Tabs */
-  .tabs {
-    display: flex;
-    gap: 0;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    width: fit-content;
-    margin-bottom: 12px;
-  }
-  .tab-btn {
-    padding: 7px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text2);
-    border: none;
-    border-right: 1px solid var(--border2);
-    transition: background 0.15s, color 0.15s;
-  }
-  .tab-btn:last-child { border-right: none; }
-  .tab-btn.active { background: var(--accent); color: var(--accent-fg); }
-  .tab-btn:hover:not(.active) { background: var(--surface2); }
-
-  .panel { display: none; }
-  .panel.active { display: block; }
-
-  /* Ahrefs grid */
-  .ahrefs-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .field-group { display: flex; flex-direction: column; gap: 5px; }
-
-  /* Buttons */
-  .btn-row { display: flex; gap: 10px; align-items: center; margin-top: 1.5rem; }
-  .btn {
-    height: 40px;
-    padding: 0 20px;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: 'DM Sans', sans-serif;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    background: var(--surface);
-    color: var(--text);
-    transition: background 0.15s, transform 0.1s;
-    white-space: nowrap;
-  }
-  .btn:hover { background: var(--surface2); }
-  .btn:active { transform: scale(0.98); }
-  .btn-primary {
-    background: var(--accent);
-    color: var(--accent-fg);
-    border-color: var(--accent);
-  }
-  .btn-primary:hover { opacity: 0.85; background: var(--accent); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  /* Loading */
-  .loading {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    padding: 1rem 1.25rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-top: 1rem;
-    font-size: 14px;
-    color: var(--text2);
-  }
-  .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border2);
-    border-top-color: var(--text2);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    flex-shrink: 0;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Error */
-  .error {
-    display: none;
-    padding: 0.75rem 1rem;
-    background: var(--red-bg);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    color: var(--red-text);
-    margin-top: 0.75rem;
-    border: 1px solid rgba(138,26,26,0.15);
-  }
-
-  /* Results */
-  .results { display: none; margin-top: 2rem; }
-  .divider { height: 1px; background: var(--border); margin-bottom: 1.5rem; }
-
-  .metrics {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 1.5rem;
-  }
-  .metric {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 14px;
-  }
-  .metric-label { font-size: 11px; color: var(--text2); margin-bottom: 3px; }
-  .metric-val { font-size: 22px; font-weight: 500; color: var(--text); }
-
-  .results-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-  }
-  .results-title { font-size: 16px; font-weight: 500; }
-  .cnt-badge {
-    font-size: 11px;
-    padding: 3px 9px;
-    background: var(--green-bg);
-    color: var(--green-text);
-    border-radius: 999px;
-    font-weight: 500;
-  }
-
-  /* Link card */
-  .link-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 12px;
-    transition: border-color 0.15s;
-  }
-  .link-card:hover { border-color: var(--border2); }
-
-  .card-top {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 12px;
-  }
-  .prio-badge {
-    font-size: 10px;
-    font-weight: 500;
-    padding: 3px 8px;
-    border-radius: 999px;
-    flex-shrink: 0;
-    margin-top: 3px;
-  }
-  .p-high { background: var(--green-bg); color: var(--green-text); }
-  .p-mid { background: var(--amber-bg); color: var(--amber-text); }
-  .p-low { background: var(--surface2); color: var(--text2); }
-
-  .card-body { flex: 1; min-width: 0; }
-  .card-url {
-    font-size: 12px;
-    color: var(--blue-text);
-    font-family: 'DM Mono', monospace;
-    margin-bottom: 4px;
-    word-break: break-all;
-  }
-  .card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-  .card-reason { font-size: 13px; color: var(--text2); line-height: 1.55; }
-
-  .score-box { text-align: right; flex-shrink: 0; }
-  .score-num { font-size: 22px; font-weight: 500; }
-  .score-lbl { font-size: 10px; color: var(--text3); }
-
-  .seo-note {
-    font-size: 12px;
-    padding: 5px 10px;
-    background: var(--blue-bg);
-    color: var(--blue-text);
-    border-radius: var(--radius-sm);
-    margin-bottom: 10px;
-    display: inline-block;
-  }
-  .insert-ctx {
-    font-size: 12px;
-    color: var(--text2);
-    padding: 7px 12px;
-    background: var(--surface2);
-    border-radius: var(--radius-sm);
-    margin-bottom: 12px;
-    border-left: 3px solid var(--border2);
-  }
-
-  .anchor-section { border-top: 1px solid var(--border); padding-top: 12px; }
-  .anchor-label { font-size: 11px; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.04em; }
-  .anchors-list { display: flex; flex-direction: column; gap: 7px; }
-  .anchor-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 8px 12px;
-  }
-  .anchor-html {
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    color: var(--text2);
-    flex: 1;
-    word-break: break-all;
-    line-height: 1.5;
-  }
-  .copy-btn {
-    font-size: 11px;
-    padding: 4px 10px;
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    background: var(--surface);
-    color: var(--text2);
-    cursor: pointer;
-    flex-shrink: 0;
-    font-family: 'DM Sans', sans-serif;
-    transition: background 0.15s;
-    white-space: nowrap;
-  }
-  .copy-btn:hover { background: var(--surface2); }
-  .copy-btn.copied { background: var(--green-bg); color: var(--green-text); border-color: rgba(45,106,45,0.2); }
-
-  @media (max-width: 600px) {
-    .ahrefs-grid { grid-template-columns: 1fr; }
-    .metrics { grid-template-columns: repeat(2, 1fr); }
-    body { padding: 1.5rem 0.75rem 3rem; }
-  }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#f4f3ef; --bg2:#eceae4; --surface:#ffffff; --surface2:#f0efe9;
+  --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.14);
+  --text:#18170f; --text2:#6b6a60; --text3:#a09f96;
+  --accent:#18170f; --accent-fg:#f4f3ef;
+  --green-bg:#e4f0e4; --green-text:#2a5e2a;
+  --amber-bg:#faefd4; --amber-text:#7a4a0a;
+  --blue-bg:#e4edf8; --blue-text:#1a3f7a;
+  --red-bg:#fce8e8; --red-text:#8a1a1a;
+  --purple-bg:#f0e8fc; --purple-text:#5a1a8a;
+  --radius:12px; --radius-sm:7px;
+  --shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+  --t:0.18s ease;
+}
+[data-theme="dark"] {
+  --bg:#0f0e0b; --bg2:#1a1916; --surface:#1f1e1a; --surface2:#2a2926;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --text:#f0efe8; --text2:#9e9d94; --text3:#5e5d56;
+  --accent:#f0efe8; --accent-fg:#0f0e0b;
+  --green-bg:#1a2e1a; --green-text:#7acc7a;
+  --amber-bg:#2a1e0a; --amber-text:#f0b060;
+  --blue-bg:#0e1e36; --blue-text:#6aa0f0;
+  --red-bg:#2a0e0e; --red-text:#f07070;
+  --purple-bg:#1e0e2e; --purple-text:#c070f0;
+  --shadow:0 1px 3px rgba(0,0,0,0.3),0 4px 16px rgba(0,0,0,0.2);
+}
+body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; padding:2.5rem 1rem 5rem; font-size:15px; line-height:1.6; transition:background var(--t),color var(--t); }
+.container { max-width:780px; margin:0 auto; }
+.topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:2.5rem; }
+.logo { font-size:22px; font-weight:700; letter-spacing:-0.03em; display:flex; align-items:center; gap:8px; }
+.logo-sub { font-size:12px; color:var(--text3); margin-top:3px; letter-spacing:0.02em; }
+.v-badge { font-size:10px; padding:2px 7px; background:var(--green-bg); color:var(--green-text); border-radius:999px; font-weight:600; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.theme-toggle { width:44px; height:24px; background:var(--surface2); border:1px solid var(--border2); border-radius:999px; cursor:pointer; position:relative; transition:background var(--t); flex-shrink:0; }
+.theme-toggle::after { content:''; position:absolute; width:18px; height:18px; background:var(--text); border-radius:50%; top:2px; left:2px; transition:transform 0.2s ease,background var(--t); }
+[data-theme="dark"] .theme-toggle::after { transform:translateX(20px); }
+.hist-btn { height:32px; padding:0 12px; font-size:12px; font-weight:600; font-family:'Syne',sans-serif; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface); color:var(--text2); cursor:pointer; transition:background var(--t); display:flex; align-items:center; gap:5px; }
+.hist-btn:hover { background:var(--surface2); color:var(--text); }
+.api-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.875rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); transition:background var(--t),border-color var(--t); }
+.api-dot { width:8px; height:8px; border-radius:50%; background:var(--text3); flex-shrink:0; transition:background 0.2s; }
+.api-dot.ok { background:#4caf50; box-shadow:0 0 0 3px rgba(76,175,80,0.2); }
+.api-lbl { font-size:12px; font-weight:600; color:var(--text2); flex-shrink:0; min-width:110px; letter-spacing:0.03em; }
+.api-inp { flex:1; height:32px; padding:0 10px; font-size:12px; font-family:'DM Mono',monospace; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--bg); color:var(--text); outline:none; transition:border-color var(--t),background var(--t); }
+.api-inp:focus { border-color:var(--accent); background:var(--surface); }
+.save-badge { font-size:10px; padding:2px 7px; background:var(--blue-bg); color:var(--blue-text); border-radius:999px; flex-shrink:0; font-weight:600; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:1rem; box-shadow:var(--shadow); transition:background var(--t),border-color var(--t); }
+.sec-lbl { font-size:11px; font-weight:600; color:var(--text2); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.opt-badge { font-size:10px; padding:2px 6px; background:var(--blue-bg); color:var(--blue-text); border-radius:999px; font-weight:600; text-transform:none; letter-spacing:0; }
+input[type="url"],input[type="number"],input[type="text"] { width:100%; height:38px; padding:0 12px; font-size:14px; font-family:'Syne',sans-serif; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--bg); color:var(--text); outline:none; transition:border-color var(--t),background var(--t); }
+input:focus { border-color:var(--accent); background:var(--surface); }
+textarea { width:100%; padding:10px 12px; font-size:13px; font-family:'DM Mono',monospace; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--bg); color:var(--text); outline:none; resize:vertical; line-height:1.55; transition:border-color var(--t),background var(--t); }
+textarea:focus { border-color:var(--accent); background:var(--surface); }
+.hint { font-size:12px; color:var(--text3); margin-top:5px; }
+.tabs { display:flex; border:1px solid var(--border2); border-radius:var(--radius-sm); overflow:hidden; width:fit-content; margin-bottom:12px; }
+.tab-btn { padding:7px 16px; font-size:12px; font-weight:600; font-family:'Syne',sans-serif; cursor:pointer; background:var(--surface); color:var(--text2); border:none; border-right:1px solid var(--border2); transition:background var(--t),color var(--t); letter-spacing:0.02em; }
+.tab-btn:last-child { border-right:none; }
+.tab-btn.active { background:var(--accent); color:var(--accent-fg); }
+.tab-btn:hover:not(.active) { background:var(--surface2); }
+.panel { display:none; }
+.panel.active { display:block; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.field { display:flex; flex-direction:column; gap:5px; }
+.btn-row { display:flex; gap:10px; align-items:center; margin-top:1.5rem; flex-wrap:wrap; }
+.btn { height:40px; padding:0 20px; font-size:13px; font-weight:600; font-family:'Syne',sans-serif; letter-spacing:0.02em; border:1px solid var(--border2); border-radius:var(--radius-sm); cursor:pointer; background:var(--surface); color:var(--text); transition:background var(--t),transform 0.1s; white-space:nowrap; }
+.btn:hover { background:var(--surface2); }
+.btn:active { transform:scale(0.98); }
+.btn-p { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); }
+.btn-p:hover { opacity:.85; background:var(--accent); }
+.btn-p:disabled { opacity:.38; cursor:not-allowed; }
+.loading { display:none; align-items:center; gap:12px; padding:1.125rem 1.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-top:1rem; font-size:14px; color:var(--text2); box-shadow:var(--shadow); }
+.spinner { width:18px; height:18px; border:2px solid var(--border2); border-top-color:var(--text2); border-radius:50%; animation:spin .75s linear infinite; flex-shrink:0; }
+@keyframes spin { to{transform:rotate(360deg)} }
+.error { display:none; padding:.75rem 1rem; background:var(--red-bg); border-radius:var(--radius-sm); font-size:13px; color:var(--red-text); margin-top:.75rem; border:1px solid rgba(138,26,26,0.12); }
+.results { display:none; margin-top:2rem; }
+.divider { height:1px; background:var(--border); margin-bottom:1.75rem; }
+.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:1.5rem; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; box-shadow:var(--shadow); }
+.metric-label { font-size:11px; color:var(--text2); margin-bottom:3px; font-weight:500; }
+.metric-val { font-size:24px; font-weight:700; }
+.res-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; flex-wrap:wrap; gap:8px; }
+.res-title { font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.cnt-badge { font-size:11px; padding:3px 9px; background:var(--green-bg); color:var(--green-text); border-radius:999px; font-weight:600; }
+.res-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.act-btn { height:30px; padding:0 12px; font-size:11px; font-weight:600; font-family:'Syne',sans-serif; border:1px solid var(--border2); border-radius:var(--radius-sm); cursor:pointer; background:var(--surface); color:var(--text2); transition:background var(--t); white-space:nowrap; }
+.act-btn:hover { background:var(--surface2); color:var(--text); }
+.link-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:10px; box-shadow:var(--shadow); transition:border-color var(--t),opacity 0.2s; position:relative; }
+.link-card.linked { opacity:.5; }
+.link-card.linked::before { content:'✓ リンク済み'; position:absolute; top:12px; right:12px; font-size:10px; font-weight:600; padding:2px 8px; background:var(--green-bg); color:var(--green-text); border-radius:999px; }
+.card-top { display:flex; gap:12px; align-items:flex-start; margin-bottom:12px; }
+.prio { font-size:10px; font-weight:600; padding:3px 8px; border-radius:999px; flex-shrink:0; margin-top:3px; letter-spacing:0.03em; }
+.p-high { background:var(--green-bg); color:var(--green-text); }
+.p-mid { background:var(--amber-bg); color:var(--amber-text); }
+.p-low { background:var(--surface2); color:var(--text2); }
+.p-comp { background:var(--purple-bg); color:var(--purple-text); }
+.cb { flex:1; min-width:0; }
+.c-url { font-size:12px; color:var(--blue-text); font-family:'DM Mono',monospace; margin-bottom:4px; word-break:break-all; }
+.c-ttl { font-size:15px; font-weight:600; margin-bottom:4px; }
+.c-reason { font-size:13px; color:var(--text2); line-height:1.55; }
+.score-box { text-align:right; flex-shrink:0; }
+.score-num { font-size:24px; font-weight:700; }
+.score-lbl { font-size:10px; color:var(--text3); }
+.score-bar { height:3px; background:var(--border2); border-radius:99px; margin-top:4px; overflow:hidden; width:50px; }
+.score-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#4caf50,#8bc34a); }
+.tag { font-size:12px; padding:5px 10px; border-radius:var(--radius-sm); margin-bottom:10px; display:inline-block; font-weight:500; }
+.tag-seo { background:var(--blue-bg); color:var(--blue-text); }
+.tag-comp { background:var(--purple-bg); color:var(--purple-text); }
+.insert-ctx { font-size:12px; color:var(--text2); padding:7px 12px; background:var(--surface2); border-radius:var(--radius-sm); margin-bottom:12px; border-left:3px solid var(--border2); }
+.anchor-sec { border-top:1px solid var(--border); padding-top:12px; }
+.anchor-lbl { font-size:11px; color:var(--text3); margin-bottom:8px; font-weight:500; letter-spacing:0.04em; }
+.anchors-list { display:flex; flex-direction:column; gap:6px; }
+.anchor-item { display:flex; align-items:center; gap:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:8px 12px; transition:border-color var(--t); }
+.anchor-item:hover { border-color:var(--border2); }
+.anchor-html { font-size:12px; font-family:'DM Mono',monospace; color:var(--text2); flex:1; word-break:break-all; line-height:1.5; }
+.copy-btn { font-size:11px; padding:4px 10px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface); color:var(--text2); cursor:pointer; flex-shrink:0; font-family:'Syne',sans-serif; font-weight:600; transition:background var(--t); white-space:nowrap; }
+.copy-btn:hover { background:var(--surface2); }
+.copy-btn.copied { background:var(--green-bg); color:var(--green-text); border-color:transparent; }
+.card-footer { display:flex; justify-content:flex-end; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.linked-btn { font-size:11px; padding:5px 12px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface); color:var(--text2); cursor:pointer; font-family:'Syne',sans-serif; font-weight:600; transition:background var(--t); }
+.linked-btn:hover { background:var(--green-bg); color:var(--green-text); border-color:transparent; }
+.linked-btn.on { background:var(--green-bg); color:var(--green-text); border-color:transparent; }
+/* History */
+.hist-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:99; }
+.hist-overlay.open { display:block; }
+.hist-panel { display:none; position:fixed; top:0; right:0; width:400px; max-width:100vw; height:100vh; background:var(--surface); border-left:1px solid var(--border); box-shadow:-4px 0 32px rgba(0,0,0,0.12); z-index:100; flex-direction:column; overflow:hidden; transition:background var(--t); }
+.hist-panel.open { display:flex; }
+.hist-hdr { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
+.hist-title { font-size:16px; font-weight:700; }
+.hist-close { width:28px; height:28px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface2); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
+.hist-close:hover { background:var(--bg2); }
+.hist-list { flex:1; overflow-y:auto; padding:1rem; display:flex; flex-direction:column; gap:8px; }
+.hist-item { background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 14px; cursor:pointer; transition:border-color var(--t),background var(--t); }
+.hist-item:hover { border-color:var(--border2); background:var(--surface2); }
+.hist-url { font-size:12px; font-family:'DM Mono',monospace; color:var(--blue-text); margin-bottom:3px; word-break:break-all; }
+.hist-meta { font-size:11px; color:var(--text3); display:flex; justify-content:space-between; }
+.hist-empty { font-size:14px; color:var(--text3); text-align:center; padding:2rem; }
+@media(max-width:600px){.grid2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}body{padding:1.25rem .75rem 4rem}.hist-panel{width:100vw}}
 </style>
 </head>
 <body>
 <div class="container">
-
-  <div class="header">
-    <div class="header-top">
-      <h1>Internal Link Architect</h1>
-      <span class="version-badge">v2</span>
+  <div class="topbar">
+    <div>
+      <div class="logo">Internal Link Architect <span class="v-badge">v3</span></div>
+      <div class="logo-sub">サイトマップXML・URLリスト両対応 ／ Ahrefs連携 ／ 競合比較 ／ CSVエクスポート</div>
     </div>
-    <p>サイトマップXML・URLリスト両対応 ／ Ahrefs SEOデータ連携 ／ HTMLアンカータグ出力</p>
+    <div class="topbar-right">
+      <button class="hist-btn" onclick="toggleHistory()">📋 履歴</button>
+      <button class="theme-toggle" onclick="toggleTheme()" title="ダークモード切替"></button>
+    </div>
   </div>
 
-  <!-- API Key -->
-  <div class="api-section">
+  <div class="api-bar">
     <div class="api-dot" id="apiDot"></div>
-    <span class="api-label">Anthropic API Key</span>
-    <input class="api-input" id="apiKey" type="password" placeholder="sk-ant-..." oninput="checkApiKey()" />
-    <span class="api-hint">保存されません</span>
+    <span class="api-lbl">Anthropic API Key</span>
+    <input class="api-inp" id="apiKey" type="password" placeholder="sk-ant-..." oninput="onApiInput()" />
+    <span class="save-badge">自動保存</span>
   </div>
 
-  <!-- Step 1: Target URL -->
   <div class="card">
-    <div class="section-label">Step 1 — 分析対象の記事URL</div>
+    <div class="sec-lbl">Step 1 — 分析対象の記事URL</div>
     <input type="url" id="targetUrl" placeholder="https://example.com/blog/your-article" />
     <p class="hint">内部リンクを追加したい記事のURLを入力してください</p>
   </div>
 
-  <!-- Step 2: Site Structure -->
   <div class="card">
-    <div class="section-label">Step 2 — サイト構造の入力</div>
+    <div class="sec-lbl">Step 2 — サイト構造の入力</div>
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab('sitemap')">サイトマップ XML</button>
       <button class="tab-btn" onclick="switchTab('urls')">URL リスト</button>
       <button class="tab-btn" onclick="switchTab('both')">両方</button>
     </div>
-
     <div id="panel-sitemap" class="panel active">
-      <textarea id="sitemapXml" rows="7" placeholder="<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>
-<urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;>
-  <url><loc>https://example.com/blog/article-1</loc></url>
-  <url><loc>https://example.com/blog/article-2</loc></url>
-  ...
-</urlset>
-
-※ sitemap.xml の内容をそのまま貼り付けてください"></textarea>
+      <textarea id="sitemapXml" rows="6" placeholder="<?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?>&#10;<urlset xmlns=&quot;http://www.sitemaps.org/schemas/sitemap/0.9&quot;>&#10;  <url><loc>https://example.com/blog/article-1</loc></url>&#10;</urlset>"></textarea>
     </div>
-
     <div id="panel-urls" class="panel">
-      <textarea id="urlList" rows="7" placeholder="https://example.com/blog/article-1
-https://example.com/blog/article-2
-https://example.com/blog/article-3
-
-※ URLを1行ずつ入力してください"></textarea>
+      <textarea id="urlList" rows="6" placeholder="https://example.com/blog/article-1&#10;https://example.com/blog/article-2"></textarea>
     </div>
-
     <div id="panel-both" class="panel">
-      <div class="section-label" style="margin-bottom:6px">サイトマップ XML</div>
-      <textarea id="bothXml" rows="5" placeholder="XMLサイトマップを貼り付け..." style="margin-bottom:10px"></textarea>
-      <div class="section-label" style="margin-bottom:6px">追加 URL リスト</div>
-      <textarea id="bothUrls" rows="4" placeholder="追加URLを1行ずつ..."></textarea>
+      <div class="sec-lbl" style="margin-bottom:6px">サイトマップ XML</div>
+      <textarea id="bothXml" rows="4" placeholder="XMLサイトマップを貼り付け..." style="margin-bottom:10px"></textarea>
+      <div class="sec-lbl" style="margin-bottom:6px">追加 URL リスト</div>
+      <textarea id="bothUrls" rows="3" placeholder="追加URLを1行ずつ..."></textarea>
     </div>
     <p class="hint">最大50件のURLを解析します。重複は自動で除去されます。</p>
   </div>
 
-  <!-- Step 3: Ahrefs -->
   <div class="card">
-    <div class="section-label" style="display:flex;align-items:center;gap:7px">
-      Step 3 — Ahrefs SEOデータ
-      <span style="font-size:10px;padding:2px 6px;background:var(--blue-bg);color:var(--blue-text);border-radius:999px;font-weight:500">任意</span>
+    <div class="sec-lbl">Step 3 — Ahrefs SEOデータ <span class="opt-badge">任意</span></div>
+    <div class="grid2">
+      <div class="field"><div class="sec-lbl" style="margin-bottom:4px">Domain Rating (DR)</div><input type="number" id="ahDr" placeholder="例: 55" min="0" max="100" /></div>
+      <div class="field"><div class="sec-lbl" style="margin-bottom:4px">URL Rating (UR)</div><input type="number" id="ahUr" placeholder="例: 38" min="0" max="100" /></div>
+      <div class="field"><div class="sec-lbl" style="margin-bottom:4px">月間オーガニック流入</div><input type="number" id="ahTraffic" placeholder="例: 4200" min="0" /></div>
+      <div class="field"><div class="sec-lbl" style="margin-bottom:4px">被リンク数（参照ドメイン）</div><input type="number" id="ahBacklinks" placeholder="例: 28" min="0" /></div>
     </div>
-    <div class="ahrefs-grid">
-      <div class="field-group">
-        <div class="section-label">Domain Rating (DR)</div>
-        <input type="number" id="ahDr" placeholder="例: 55" min="0" max="100" />
-      </div>
-      <div class="field-group">
-        <div class="section-label">URL Rating (UR)</div>
-        <input type="number" id="ahUr" placeholder="例: 38" min="0" max="100" />
-      </div>
-      <div class="field-group">
-        <div class="section-label">月間オーガニック流入</div>
-        <input type="number" id="ahTraffic" placeholder="例: 4200" min="0" />
-      </div>
-      <div class="field-group">
-        <div class="section-label">被リンク数（参照ドメイン）</div>
-        <input type="number" id="ahBacklinks" placeholder="例: 28" min="0" />
-      </div>
-    </div>
-    <div class="field-group">
-      <div class="section-label">オーガニックキーワード / 補足メモ</div>
+    <div class="field"><div class="sec-lbl" style="margin-bottom:6px">キーワード / 補足メモ</div>
       <textarea id="ahExtra" rows="2" placeholder="主要キーワード: ChatGPT SEO, AI SEO対策&#10;競合に比べてトップファネル記事が少ない、など"></textarea>
     </div>
-    <p class="hint">入力するとSEO観点のコメントが各リンク候補に追加されます。空欄でも動作します。</p>
   </div>
 
-  <!-- Actions -->
+  <div class="card">
+    <div class="sec-lbl">Step 4 — 競合URL比較 <span class="opt-badge">任意</span></div>
+    <textarea id="compUrls" rows="4" placeholder="https://competitor.com/blog/article-1&#10;https://competitor.com/blog/article-2&#10;&#10;※ 競合サイトの記事URLを1行ずつ。コンテンツギャップから差分提案を生成します。"></textarea>
+    <p class="hint">競合がカバーしているが自サイトにないリンク先を「競合差分」として提案します。</p>
+  </div>
+
   <div class="btn-row">
-    <button class="btn btn-primary" id="analyzeBtn" onclick="runAnalysis()">内部リンクを分析する →</button>
+    <button class="btn btn-p" id="analyzeBtn" onclick="runAnalysis()">内部リンクを分析する →</button>
     <button class="btn" onclick="loadSample()">サンプルで試す</button>
   </div>
 
   <div class="error" id="errBox"></div>
-  <div class="loading" id="loadBox">
-    <div class="spinner"></div>
-    <span id="loadMsg">記事コンテンツを解析中...</span>
-  </div>
+  <div class="loading" id="loadBox"><div class="spinner"></div><span id="loadMsg">記事コンテンツを解析中...</span></div>
 
-  <!-- Results -->
   <div class="results" id="resultsBox">
     <div class="divider"></div>
     <div class="metrics" id="metricsBox"></div>
-    <div class="results-header">
-      <span class="results-title">内部リンク候補</span>
-      <span class="cnt-badge" id="cntBadge"></span>
+    <div class="res-hdr">
+      <span class="res-title">内部リンク候補 <span class="cnt-badge" id="cntBadge"></span></span>
+      <div class="res-actions">
+        <button class="act-btn" onclick="bulkCopy()">📋 全アンカー一括コピー</button>
+        <button class="act-btn" onclick="exportCsv()">⬇ CSV エクスポート</button>
+      </div>
     </div>
     <div id="linkCards"></div>
   </div>
+</div>
 
+<div class="hist-overlay" id="histOverlay" onclick="toggleHistory()"></div>
+<div class="hist-panel" id="histPanel">
+  <div class="hist-hdr">
+    <span class="hist-title">分析履歴</span>
+    <button class="hist-close" onclick="toggleHistory()">✕</button>
+  </div>
+  <div class="hist-list" id="histList"></div>
 </div>
 
 <script>
-  let activeTab = 'sitemap';
+// Theme
+function toggleTheme(){const d=document.documentElement,t=d.getAttribute('data-theme')==='dark';d.setAttribute('data-theme',t?'light':'dark');localStorage.setItem('ila-theme',t?'light':'dark');}
+(()=>{const s=localStorage.getItem('ila-theme');if(s)document.documentElement.setAttribute('data-theme',s);})();
 
-  function checkApiKey() {
-    const val = document.getElementById('apiKey').value.trim();
-    document.getElementById('apiDot').className = 'api-dot' + (val.startsWith('sk-ant-') ? ' ok' : '');
-  }
+// API Key
+(()=>{const s=localStorage.getItem('ila-apikey');if(s){document.getElementById('apiKey').value=s;updateDot(s);}})();
+function onApiInput(){const v=document.getElementById('apiKey').value.trim();localStorage.setItem('ila-apikey',v);updateDot(v);}
+function updateDot(v){document.getElementById('apiDot').className='api-dot'+(v.startsWith('sk-ant-')?' ok':'');}
 
-  function switchTab(t) {
-    activeTab = t;
-    document.querySelectorAll('.tab-btn').forEach((el, i) => {
-      el.classList.toggle('active', ['sitemap','urls','both'][i] === t);
-    });
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.getElementById('panel-' + t).classList.add('active');
-  }
+// Tabs
+let activeTab='sitemap';
+function switchTab(t){activeTab=t;document.querySelectorAll('.tab-btn').forEach((el,i)=>el.classList.toggle('active',['sitemap','urls','both'][i]===t));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById('panel-'+t).classList.add('active');}
 
-  function parseUrlsFromXml(xml) {
-    return (xml.match(/<loc>(https?:\/\/[^<]+)<\/loc>/g) || [])
-      .map(m => m.replace(/<\/?loc>/g, '').trim()).filter(Boolean);
-  }
+// URL parse
+function parseXml(x){return(x.match(/<loc>(https?:\/\/[^<]+)<\/loc>/g)||[]).map(m=>m.replace(/<\/?loc>/g,'').trim()).filter(Boolean);}
+function parseList(t){return t.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('http'));}
+function collectUrls(){if(activeTab==='sitemap')return parseXml(document.getElementById('sitemapXml').value);if(activeTab==='urls')return parseList(document.getElementById('urlList').value);return[...new Set([...parseXml(document.getElementById('bothXml').value),...parseList(document.getElementById('bothUrls').value)])];}
 
-  function parseUrlsFromList(text) {
-    return text.split('\n').map(l => l.trim()).filter(l => l.startsWith('http'));
-  }
+// Sample
+function loadSample(){
+  switchTab('both');
+  document.getElementById('targetUrl').value='https://techblog.example.com/articles/chatgpt-seo-strategy-2024';
+  document.getElementById('bothXml').value='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://techblog.example.com/articles/ai-content-marketing</loc></url>\n  <url><loc>https://techblog.example.com/articles/keyword-research-tools</loc></url>\n  <url><loc>https://techblog.example.com/articles/google-algorithm-2024</loc></url>\n  <url><loc>https://techblog.example.com/articles/e-e-a-t-seo-guide</loc></url>\n  <url><loc>https://techblog.example.com/articles/content-cluster-strategy</loc></url>\n</urlset>';
+  document.getElementById('bothUrls').value='https://techblog.example.com/articles/long-tail-keyword-strategy\nhttps://techblog.example.com/articles/chatgpt-prompts-for-bloggers\nhttps://techblog.example.com/articles/internal-linking-best-practices\nhttps://techblog.example.com/articles/competitor-analysis-seo';
+  document.getElementById('ahDr').value='55';document.getElementById('ahUr').value='38';document.getElementById('ahTraffic').value='4200';document.getElementById('ahBacklinks').value='28';
+  document.getElementById('ahExtra').value='主要キーワード: ChatGPT SEO, AI SEO対策\nトップファネル記事が不足している';
+  document.getElementById('compUrls').value='https://rival-blog.com/articles/ai-seo-complete-guide\nhttps://rival-blog.com/articles/chatgpt-content-strategy\nhttps://rival-blog.com/articles/seo-tools-2024';
+}
 
-  function collectUrls() {
-    if (activeTab === 'sitemap') return parseUrlsFromXml(document.getElementById('sitemapXml').value);
-    if (activeTab === 'urls') return parseUrlsFromList(document.getElementById('urlList').value);
-    return [...new Set([
-      ...parseUrlsFromXml(document.getElementById('bothXml').value),
-      ...parseUrlsFromList(document.getElementById('bothUrls').value)
-    ])];
-  }
+function showErr(m){const b=document.getElementById('errBox');b.textContent=m;b.style.display='block';}
 
-  const loadMsgs = ["記事コンテンツを解析中...","URL間の文脈を比較中...","SEOデータを考慮中...","リンク候補をスコアリング中..."];
+const loadMsgs=["記事コンテンツを解析中...","URL間の文脈を比較中...","SEOデータを考慮中...","競合データを分析中...","リンク候補をスコアリング中..."];
+let currentLinks=[],linkedSet=new Set();
 
-  function showErr(m) {
-    const b = document.getElementById('errBox');
-    b.textContent = m;
-    b.style.display = 'block';
-  }
+async function runAnalysis(){
+  document.getElementById('errBox').style.display='none';
+  const apiKey=document.getElementById('apiKey').value.trim();
+  if(!apiKey){showErr('Anthropic API Keyを入力してください');return;}
+  const target=document.getElementById('targetUrl').value.trim();
+  if(!target){showErr('分析対象の記事URLを入力してください');return;}
+  const all=collectUrls();
+  if(!all.length){showErr('有効なURLが見つかりませんでした');return;}
+  const urls=all.filter(u=>u!==target).slice(0,50);
+  if(!urls.length){showErr('分析対象URL以外の記事URLが必要です');return;}
+  const dr=document.getElementById('ahDr').value,ur=document.getElementById('ahUr').value,traffic=document.getElementById('ahTraffic').value,bl=document.getElementById('ahBacklinks').value,extra=document.getElementById('ahExtra').value.trim();
+  const comp=parseList(document.getElementById('compUrls').value).slice(0,20);
+  const hasAh=!!(dr||ur||traffic||bl),hasComp=comp.length>0;
+  const ahSec=hasAh?`\n# Ahrefsデータ\nDR:${dr||'?'}/UR:${ur||'?'}/月間流入:${traffic||'?'}/参照ドメイン:${bl||'?'}\n${extra?'補足:'+extra:''}`:'';
+  const compSec=hasComp?`\n# 競合サイトURL（${comp.length}件）\n${comp.join('\n')}\n競合がカバーしているトピックで自サイトにないリンク先はis_competitor_gap:trueを付与`:'' ;
+  const btn=document.getElementById('analyzeBtn');
+  btn.disabled=true;document.getElementById('loadBox').style.display='flex';document.getElementById('resultsBox').style.display='none';
+  linkedSet=new Set();let mi=0;
+  const iv=setInterval(()=>{document.getElementById('loadMsg').textContent=loadMsgs[Math.min(mi++,loadMsgs.length-1)];},2000);
+  const prompt=`あなたはSEOコンサルタントです。以下の情報をもとに内部リンク提案をしてください。\n\n# 分析対象記事URL\n${target}\n\n# 自サイトの既存記事URL（${urls.length}件）\n${urls.join('\n')}${ahSec}${compSec}\n\n# 出力ルール\n- 5〜8件を提案する\n- relevance_scoreは1〜10の整数\n- priority: "high"|"mid"|"low"\n- anchor_htmlはHTMLアンカータグ形式で3パターン生成\n- insert_contextは40字以内\n- seo_noteはAhrefsデータがある場合のみコメント、なければ空文字\n- is_competitor_gap: 競合URLから着想した提案ならtrue\n- JSONのみ返す。説明文・コードブロック記号不要\n\n[{"url":"","title":"","relevance_score":8,"priority":"high","reason":"","anchor_html":["<a href=\\"URL\\">テキスト1</a>","<a href=\\"URL\\">テキスト2</a>","<a href=\\"URL\\">テキスト3</a>"],"insert_context":"","seo_note":"","is_competitor_gap":false}]`;
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,messages:[{role:"user",content:prompt}]})});
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`APIエラー: ${res.status}`);}
+    const data=await res.json();
+    const raw=data.content.map(i=>i.text||'').join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    currentLinks=JSON.parse(clean);
+    clearInterval(iv);document.getElementById('loadBox').style.display='none';btn.disabled=false;
+    render(currentLinks,urls.length,hasAh,hasComp,target);
+    saveHist(target,currentLinks.length);
+  }catch(e){clearInterval(iv);document.getElementById('loadBox').style.display='none';btn.disabled=false;showErr('エラー: '+(e.message||'解析に失敗しました'));}
+}
 
-  function loadSample() {
-    switchTab('both');
-    document.getElementById('targetUrl').value = 'https://techblog.example.com/articles/chatgpt-seo-strategy-2024';
-    document.getElementById('bothXml').value = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://techblog.example.com/articles/ai-content-marketing</loc></url>
-  <url><loc>https://techblog.example.com/articles/keyword-research-tools</loc></url>
-  <url><loc>https://techblog.example.com/articles/google-algorithm-2024</loc></url>
-  <url><loc>https://techblog.example.com/articles/e-e-a-t-seo-guide</loc></url>
-  <url><loc>https://techblog.example.com/articles/content-cluster-strategy</loc></url>
-</urlset>`;
-    document.getElementById('bothUrls').value = `https://techblog.example.com/articles/long-tail-keyword-strategy
-https://techblog.example.com/articles/chatgpt-prompts-for-bloggers
-https://techblog.example.com/articles/internal-linking-best-practices
-https://techblog.example.com/articles/competitor-analysis-seo`;
-    document.getElementById('ahDr').value = '55';
-    document.getElementById('ahUr').value = '38';
-    document.getElementById('ahTraffic').value = '4200';
-    document.getElementById('ahBacklinks').value = '28';
-    document.getElementById('ahExtra').value = '主要キーワード: ChatGPT SEO, AI SEO対策\nトップファネル記事が不足している';
-  }
+function render(links,scanned,hasAh,hasComp,target){
+  const high=links.filter(l=>l.priority==='high').length,gaps=links.filter(l=>l.is_competitor_gap).length;
+  document.getElementById('metricsBox').innerHTML=`<div class="metric"><div class="metric-label">スキャン数</div><div class="metric-val">${scanned}</div></div><div class="metric"><div class="metric-label">リンク候補</div><div class="metric-val">${links.length}</div></div><div class="metric"><div class="metric-label">HIGH 優先</div><div class="metric-val">${high}</div></div><div class="metric"><div class="metric-label">${hasComp?'競合差分':'Ahrefs'}</div><div class="metric-val" style="font-size:15px;padding-top:5px">${hasComp?gaps+'件':(hasAh?'✓ ON':'— OFF')}</div></div>`;
+  document.getElementById('cntBadge').textContent=links.length+'件';
+  const sorted=[...links].sort((a,b)=>(b.relevance_score||0)-(a.relevance_score||0));
+  document.getElementById('linkCards').innerHTML=sorted.map((link,i)=>{
+    const pc=link.is_competitor_gap?'p-comp':link.priority==='high'?'p-high':link.priority==='mid'?'p-mid':'p-low';
+    const pl=link.is_competitor_gap?'競合差分':link.priority==='high'?'優先 HIGH':link.priority==='mid'?'優先 MID':'低優先';
+    const anchors=(link.anchor_html||[]).map(html=>`<div class="anchor-item"><span class="anchor-html">${escHtml(html)}</span><button class="copy-btn" onclick="copyAnchor(${JSON.stringify(html)},this)">コピー</button></div>`).join('');
+    const fw=Math.round((link.relevance_score||0)*10);
+    return `<div class="link-card" id="card-${i}"><div class="card-top"><span class="prio ${pc}">${pl}</span><div class="cb"><p class="c-url">${link.url}</p><p class="c-ttl">${link.title||''}</p><p class="c-reason">${link.reason||''}</p></div><div class="score-box"><div class="score-num">${link.relevance_score||'-'}</div><div class="score-lbl">/ 10</div><div class="score-bar"><div class="score-fill" style="width:${fw}%"></div></div></div></div>${link.seo_note?`<div class="tag tag-seo">📊 ${link.seo_note}</div>`:''}${link.is_competitor_gap?`<div class="tag tag-comp">🔍 競合サイトのコンテンツギャップから提案</div>`:''}${link.insert_context?`<div class="insert-ctx">挿入推奨: ${link.insert_context}</div>`:''}<div class="anchor-sec"><div class="anchor-lbl">HTML アンカータグ（クリックでコピー）</div><div class="anchors-list">${anchors}</div></div><div class="card-footer"><button class="linked-btn" onclick="toggleLinked(${i},this)">リンク済みにする</button></div></div>`;
+  }).join('');
+  document.getElementById('resultsBox').style.display='block';
+  document.getElementById('resultsBox').scrollIntoView({behavior:'smooth',block:'start'});
+}
 
-  async function runAnalysis() {
-    document.getElementById('errBox').style.display = 'none';
+function toggleLinked(i,btn){const card=document.getElementById('card-'+i);if(linkedSet.has(i)){linkedSet.delete(i);card.classList.remove('linked');btn.classList.remove('on');btn.textContent='リンク済みにする';}else{linkedSet.add(i);card.classList.add('linked');btn.classList.add('on');btn.textContent='✓ リンク済み';}}
 
-    const apiKey = document.getElementById('apiKey').value.trim();
-    if (!apiKey) { showErr('Anthropic API Keyを入力してください'); return; }
+function bulkCopy(){if(!currentLinks.length)return;const all=currentLinks.flatMap(l=>l.anchor_html||[]).join('\n');navigator.clipboard.writeText(all).then(()=>{const b=document.querySelector('[onclick="bulkCopy()"]'),o=b.textContent;b.textContent='✓ コピーしました';setTimeout(()=>{b.textContent=o;},1500);});}
 
-    const target = document.getElementById('targetUrl').value.trim();
-    if (!target) { showErr('分析対象の記事URLを入力してください'); return; }
+function exportCsv(){
+  if(!currentLinks.length)return;
+  const target=document.getElementById('targetUrl').value.trim();
+  const hdr='分析対象URL,リンク先URL,タイトル,スコア,優先度,理由,挿入箇所,アンカー1,アンカー2,アンカー3,競合差分';
+  const rows=currentLinks.map(l=>{const a=(l.anchor_html||[]).map(h=>h.replace(/<[^>]+>/g,''));return[target,l.url,l.title,l.relevance_score,l.priority,l.reason,l.insert_context,a[0]||'',a[1]||'',a[2]||'',l.is_competitor_gap?'TRUE':'FALSE'].map(v=>`"${String(v||'').replace(/"/g,'""')}"`).join(',');});
+  const csv='\uFEFF'+[hdr,...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='internal-links-'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(url);
+}
 
-    const allUrls = collectUrls();
-    if (allUrls.length === 0) { showErr('有効なURLが見つかりませんでした'); return; }
+function saveHist(url,count){const h=JSON.parse(localStorage.getItem('ila-history')||'[]');h.unshift({url,count,date:new Date().toLocaleString('ja-JP')});if(h.length>20)h.pop();localStorage.setItem('ila-history',JSON.stringify(h));}
+function toggleHistory(){const p=document.getElementById('histPanel'),o=document.getElementById('histOverlay'),isOpen=p.classList.contains('open');p.classList.toggle('open',!isOpen);o.classList.toggle('open',!isOpen);if(!isOpen)renderHist();}
+function renderHist(){const h=JSON.parse(localStorage.getItem('ila-history')||'[]'),list=document.getElementById('histList');if(!h.length){list.innerHTML='<p class="hist-empty">まだ分析履歴がありません</p>';return;}list.innerHTML=h.map(i=>`<div class="hist-item" onclick="loadHist(${JSON.stringify(i.url)})"><div class="hist-url">${i.url}</div><div class="hist-meta"><span>${i.count}件の提案</span><span>${i.date}</span></div></div>`).join('');}
+function loadHist(url){document.getElementById('targetUrl').value=url;toggleHistory();document.getElementById('targetUrl').scrollIntoView({behavior:'smooth'});}
 
-    const urls = allUrls.filter(u => u !== target).slice(0, 50);
-    if (urls.length === 0) { showErr('分析対象URL以外の記事URLが必要です'); return; }
-
-    const dr = document.getElementById('ahDr').value;
-    const ur = document.getElementById('ahUr').value;
-    const traffic = document.getElementById('ahTraffic').value;
-    const bl = document.getElementById('ahBacklinks').value;
-    const extra = document.getElementById('ahExtra').value.trim();
-    const hasAhrefs = !!(dr || ur || traffic || bl);
-
-    const ahrefsSection = hasAhrefs ? `\n# Ahrefsデータ（分析対象記事）\n${dr ? `DR: ${dr}` : ''}${ur ? ` / UR: ${ur}` : ''}\n${traffic ? `月間オーガニック流入: ${Number(traffic).toLocaleString()}` : ''}\n${bl ? `参照ドメイン数: ${bl}` : ''}\n${extra ? `補足: ${extra}` : ''}\n` : '';
-
-    const btn = document.getElementById('analyzeBtn');
-    btn.disabled = true;
-    document.getElementById('loadBox').style.display = 'flex';
-    document.getElementById('resultsBox').style.display = 'none';
-
-    let mi = 0;
-    const iv = setInterval(() => {
-      document.getElementById('loadMsg').textContent = loadMsgs[Math.min(mi++, loadMsgs.length - 1)];
-    }, 2200);
-
-    const prompt = `あなたはSEOコンサルタントです。以下の情報をもとに内部リンク提案をしてください。
-
-# 分析対象記事URL
-${target}
-
-# サイト内の既存記事URL（${urls.length}件）
-${urls.join('\n')}
-${ahrefsSection}
-# 出力ルール
-- 5〜8件を提案する
-- relevance_scoreは1〜10の整数
-- priority: "high"（強く推奨）| "mid"（推奨）| "low"（任意）
-- anchor_htmlはHTMLアンカータグ形式で3パターン生成（例: <a href="URL">アンカーテキスト</a>）
-- insert_contextは記事内のどのセクション・段落で使うかを40字以内で
-- seo_noteはAhrefsデータを踏まえたSEO観点のコメント（Ahrefsデータがなければ空文字）
-- 必ずJSON配列のみ返す。説明文・コードブロック記号は不要
-
-JSON形式:
-[
-  {
-    "url": "リンク先URL",
-    "title": "推測される記事タイトル（日本語）",
-    "relevance_score": 8,
-    "priority": "high",
-    "reason": "このリンクを貼るべき理由（日本語60字以内）",
-    "anchor_html": [
-      "<a href=\\"URL\\">アンカーテキスト1</a>",
-      "<a href=\\"URL\\">アンカーテキスト2</a>",
-      "<a href=\\"URL\\">アンカーテキスト3</a>"
-    ],
-    "insert_context": "挿入推奨箇所（40字以内）",
-    "seo_note": "SEO観点のコメント（任意）"
-  }
-]`;
-
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 4000,
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `APIエラー: ${res.status}`);
-      }
-
-      const data = await res.json();
-      const raw = data.content.map(i => i.text || '').join('');
-      const clean = raw.replace(/```json|```/g, '').trim();
-      const links = JSON.parse(clean);
-
-      clearInterval(iv);
-      document.getElementById('loadBox').style.display = 'none';
-      btn.disabled = false;
-      render(links, urls.length, hasAhrefs);
-    } catch (e) {
-      clearInterval(iv);
-      document.getElementById('loadBox').style.display = 'none';
-      btn.disabled = false;
-      showErr('エラー: ' + (e.message || '解析に失敗しました。もう一度お試しください。'));
-    }
-  }
-
-  function render(links, scanned, hasAhrefs) {
-    const high = links.filter(l => l.priority === 'high').length;
-    document.getElementById('metricsBox').innerHTML = `
-      <div class="metric"><div class="metric-label">スキャン数</div><div class="metric-val">${scanned}</div></div>
-      <div class="metric"><div class="metric-label">リンク候補</div><div class="metric-val">${links.length}</div></div>
-      <div class="metric"><div class="metric-label">HIGH 優先</div><div class="metric-val">${high}</div></div>
-      <div class="metric"><div class="metric-label">Ahrefs</div><div class="metric-val" style="font-size:15px;padding-top:4px">${hasAhrefs ? '✓ ON' : '— OFF'}</div></div>
-    `;
-    document.getElementById('cntBadge').textContent = links.length + '件';
-
-    const sorted = [...links].sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
-    document.getElementById('linkCards').innerHTML = sorted.map(link => {
-      const pc = link.priority === 'high' ? 'p-high' : link.priority === 'mid' ? 'p-mid' : 'p-low';
-      const pl = link.priority === 'high' ? '優先 HIGH' : link.priority === 'mid' ? '優先 MID' : '低優先';
-      const anchors = (link.anchor_html || []).map(html => `
-        <div class="anchor-item">
-          <span class="anchor-html">${escHtml(html)}</span>
-          <button class="copy-btn" onclick="copyAnchor(${JSON.stringify(html)}, this)">コピー</button>
-        </div>`).join('');
-      return `
-        <div class="link-card">
-          <div class="card-top">
-            <span class="prio-badge ${pc}">${pl}</span>
-            <div class="card-body">
-              <p class="card-url">${link.url}</p>
-              <p class="card-title">${link.title || ''}</p>
-              <p class="card-reason">${link.reason || ''}</p>
-            </div>
-            <div class="score-box">
-              <div class="score-num">${link.relevance_score || '-'}</div>
-              <div class="score-lbl">/ 10</div>
-            </div>
-          </div>
-          ${link.seo_note ? `<div class="seo-note">SEO: ${link.seo_note}</div>` : ''}
-          ${link.insert_context ? `<div class="insert-ctx">挿入推奨: ${link.insert_context}</div>` : ''}
-          <div class="anchor-section">
-            <div class="anchor-label">HTMLアンカータグ（クリックでコピー）</div>
-            <div class="anchors-list">${anchors}</div>
-          </div>
-        </div>`;
-    }).join('');
-
-    document.getElementById('resultsBox').style.display = 'block';
-    document.getElementById('resultsBox').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function escHtml(s) {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
-
-  function copyAnchor(html, btn) {
-    navigator.clipboard.writeText(html).then(() => {
-      btn.textContent = 'コピー済み ✓';
-      btn.classList.add('copied');
-      setTimeout(() => {
-        btn.textContent = 'コピー';
-        btn.classList.remove('copied');
-      }, 1400);
-    });
-  }
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function copyAnchor(html,btn){navigator.clipboard.writeText(html).then(()=>{btn.textContent='✓ コピー済み';btn.classList.add('copied');setTimeout(()=>{btn.textContent='コピー';btn.classList.remove('copied');},1300);});}
 </script>
 </body>
 </html>
